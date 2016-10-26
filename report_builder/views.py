@@ -93,7 +93,6 @@ def email_report(report_url, user):
 
 class DownloadFileView(DataExportMixin, View):
 
-    @method_decorator(protected_resource)
     def dispatch(self, *args, **kwargs):
         return super(DownloadFileView, self).dispatch(*args, **kwargs)
 
