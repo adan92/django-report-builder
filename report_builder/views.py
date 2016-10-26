@@ -7,8 +7,6 @@ from django.conf import settings
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.core.files.base import ContentFile
 from oauth2_provider.decorators import protected_resource
-
-from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import get_user_model
 from django.template.loader import get_template
 from django.template import Context
