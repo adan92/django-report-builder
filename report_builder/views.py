@@ -6,6 +6,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.core.files.base import ContentFile
+from oauth2_provider.decorators import protected_resource
+
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import get_user_model
 from django.template.loader import get_template
@@ -93,7 +95,7 @@ def email_report(report_url, user):
 
 class DownloadFileView(DataExportMixin, View):
 
-    @method_decorator(staff_member_required)
+    @method_decorator(protected_resource)
     def dispatch(self, *args, **kwargs):
         return super(DownloadFileView, self).dispatch(*args, **kwargs)
 
@@ -163,7 +165,7 @@ class DownloadFileView(DataExportMixin, View):
                 report_id, request.user.pk, file_type, to_response=True)
 
 
-@staff_member_required
+@protected_resource
 def ajax_add_star(request, pk):
     """ Star or unstar report for user
     """
@@ -178,7 +180,7 @@ def ajax_add_star(request, pk):
     return HttpResponse(added)
 
 
-@staff_member_required
+@protected_resource
 def create_copy(request, pk):
     """ Copy a report including related fields """
     report = get_object_or_404(Report, pk=pk)
@@ -238,7 +240,7 @@ class ExportToReport(DownloadFileView, TemplateView):
         return self.render_to_response(context)
 
 
-@staff_member_required
+@protected_resource
 def check_status(request, pk, task_id):
     """ Check if the asyncronous report is ready to download """
     from celery.result import AsyncResult
