@@ -14,6 +14,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView, View
+from oauth2_provider.views import ProtectedResourceView
 from six import string_types
 from .utils import duplicate
 from .models import Report
@@ -23,7 +24,6 @@ User = get_user_model()
 
 
 class ReportSPAView(TemplateView):
-
     template_name = "report_builder/spa.html"
 
     def get_context_data(self, **kwargs):
@@ -60,7 +60,7 @@ def get_fieldsets(model):
 
 def email_report(report_url, user):
     if ((getattr(settings, 'EMAIL_BACKEND', False) or
-            getattr(settings, 'EMAIL_HOST', False)) and
+             getattr(settings, 'EMAIL_HOST', False)) and
             getattr(settings, 'DEFAULT_FROM_EMAIL', False)):
         if get_template('email/email_report.html'):
             email_template = get_template('email/email_report.html')
@@ -91,8 +91,7 @@ def email_report(report_url, user):
             )
 
 
-class DownloadFileView(DataExportMixin, View):
-
+class DownloadFileView(ProtectedResourceView, DataExportMixin):
     def dispatch(self, *args, **kwargs):
         return super(DownloadFileView, self).dispatch(*args, **kwargs)
 
@@ -109,7 +108,7 @@ class DownloadFileView(DataExportMixin, View):
             queryset,
             display_fields,
             user,
-            preview=False,)
+            preview=False, )
         title = re.sub(r'\W+', '', report.name)[:30]
         header = []
         widths = []
