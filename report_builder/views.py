@@ -2,6 +2,8 @@ import datetime
 import re
 import copy
 import json
+
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 from django.core.mail import send_mail, EmailMultiAlternatives
@@ -15,6 +17,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView, View
 from oauth2_provider.views import ProtectedResourceView
+from rest_framework.views import APIView
 from six import string_types
 from .utils import duplicate
 from .models import Report
@@ -91,7 +94,7 @@ def email_report(report_url, user):
             )
 
 
-class DownloadFileView(ProtectedResourceView, DataExportMixin):
+class DownloadFileViewAPI(DataExportMixin, APIView):
     def dispatch(self, *args, **kwargs):
         return super(DownloadFileView, self).dispatch(*args, **kwargs)
 
@@ -161,7 +164,79 @@ class DownloadFileView(ProtectedResourceView, DataExportMixin):
                 report_id, request.user.pk, file_type, to_response=True)
 
 
-@protected_resource
+class DownloadFileView(DataExportMixin, View):
+
+    @method_decorator(staff_member_required)
+
+    def dispatch(self, *args, **kwargs):
+        return super(DownloadFileView, self).dispatch(*args, **kwargs)
+
+    def process_report(self, report_id, user_id,
+                       file_type, to_response, queryset=None):
+        report = get_object_or_404(Report, pk=report_id)
+        user = User.objects.get(pk=user_id)
+        if not queryset:
+            queryset = report.get_query()
+
+        display_fields = report.get_good_display_fields()
+
+        objects_list, message = self.report_to_list(
+            queryset,
+            display_fields,
+            user,
+            preview=False, )
+        title = re.sub(r'\W+', '', report.name)[:30]
+        header = []
+        widths = []
+        for field in display_fields:
+            header.append(field.name)
+            widths.append(field.width)
+
+        if to_response:
+            if file_type == 'csv':
+                return self.list_to_csv_response(
+                    objects_list, title, header, widths)
+            else:
+                return self.list_to_xlsx_response(
+                    objects_list, title, header, widths)
+        else:
+            self.async_report_save(report, objects_list,
+                                   title, header, widths, user, file_type)
+
+    def async_report_save(self, report, objects_list,
+                          title, header, widths, user, file_type):
+        if file_type == 'csv':
+            csv_file = self.list_to_csv_file(objects_list, title,
+                                             header, widths)
+            title = generate_filename(title, '.csv')
+            report.report_file.save(title, ContentFile(csv_file.getvalue()))
+        else:
+            xlsx_file = self.list_to_xlsx_file(objects_list, title,
+                                               header, widths)
+            title = generate_filename(title, '.xlsx')
+            report.report_file.save(title, ContentFile(xlsx_file.getvalue()))
+        report.report_file_creation = datetime.datetime.today()
+        report.save()
+        if getattr(settings, 'REPORT_BUILDER_EMAIL_NOTIFICATION', False):
+            if user.email:
+                email_report(report.report_file.url, user)
+
+    def get(self, request, *args, **kwargs):
+        report_id = kwargs['pk']
+        file_type = kwargs.get('filetype')
+        if getattr(settings, 'REPORT_BUILDER_ASYNC_REPORT', False):
+            from .tasks import report_builder_file_async_report_save
+            report_task = report_builder_file_async_report_save.delay(
+                report_id, request.user.pk, file_type)
+            task_id = report_task.task_id
+            return HttpResponse(
+                json.dumps({'task_id': task_id}),
+                content_type="application/json")
+        else:
+            return self.process_report(
+                report_id, request.user.pk, file_type, to_response=True)
+
+
 def ajax_add_star(request, pk):
     """ Star or unstar report for user
     """
@@ -176,7 +251,6 @@ def ajax_add_star(request, pk):
     return HttpResponse(added)
 
 
-@protected_resource
 def create_copy(request, pk):
     """ Copy a report including related fields """
     report = get_object_or_404(Report, pk=pk)
@@ -236,7 +310,6 @@ class ExportToReport(DownloadFileView, TemplateView):
         return self.render_to_response(context)
 
 
-@protected_resource
 def check_status(request, pk, task_id):
     """ Check if the asyncronous report is ready to download """
     from celery.result import AsyncResult
