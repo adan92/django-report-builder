@@ -95,7 +95,6 @@ def email_report(report_url, user):
 
 
 class DownloadFileViewAPI(DataExportMixin, APIView):
-
     def process_report(self, report_id, user_id,
                        file_type, to_response, queryset=None):
         report = get_object_or_404(Report, pk=report_id)
@@ -163,9 +162,7 @@ class DownloadFileViewAPI(DataExportMixin, APIView):
 
 
 class DownloadFileView(DataExportMixin, View):
-
     @method_decorator(staff_member_required)
-
     def dispatch(self, *args, **kwargs):
         return super(DownloadFileView, self).dispatch(*args, **kwargs)
 
