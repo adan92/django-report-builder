@@ -95,8 +95,6 @@ def email_report(report_url, user):
 
 
 class DownloadFileViewAPI(DataExportMixin, APIView):
-    def dispatch(self, *args, **kwargs):
-        return super(DownloadFileView, self).dispatch(*args, **kwargs)
 
     def process_report(self, report_id, user_id,
                        file_type, to_response, queryset=None):
