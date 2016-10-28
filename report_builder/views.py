@@ -317,7 +317,7 @@ def check_status(request, pk, task_id):
         pusher = Pusher(app_id=settings.PUSHER_APP_ID,
                         key=settings.PUSHER_KEY,
                         secret=settings.PUSHER_SECRET)
-        pusher.trigger('solicitudes', 'create', {'state': res.state, 'link': link})
+        pusher.trigger('reports', 'success_create', {'state': res.state, 'link': link})
     return HttpResponse(
         json.dumps({
             'state': res.state,
