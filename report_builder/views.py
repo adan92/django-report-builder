@@ -21,6 +21,7 @@ from rest_framework.views import APIView
 from six import string_types
 from .utils import duplicate
 from .models import Report
+from pusher import Pusher
 from .mixins import DataExportMixin, generate_filename
 
 User = get_user_model()
@@ -141,6 +142,7 @@ class DownloadFileViewAPI(DataExportMixin, APIView):
             report.report_file.save(title, ContentFile(xlsx_file.getvalue()))
         report.report_file_creation = datetime.datetime.today()
         report.save()
+
         if getattr(settings, 'REPORT_BUILDER_EMAIL_NOTIFICATION', False):
             if user.email:
                 email_report(report.report_file.url, user)
@@ -212,6 +214,11 @@ class DownloadFileView(DataExportMixin, View):
             report.report_file.save(title, ContentFile(xlsx_file.getvalue()))
         report.report_file_creation = datetime.datetime.today()
         report.save()
+        link = report.report_file.url
+        pusher = Pusher(app_id=settings.PUSHER_APP_ID,
+                        key=settings.PUSHER_KEY,
+                        secret=settings.PUSHER_SECRET)
+        pusher.trigger('reports', 'success_create', {'name': report.name, 'link': link})
         if getattr(settings, 'REPORT_BUILDER_EMAIL_NOTIFICATION', False):
             if user.email:
                 email_report(report.report_file.url, user)
