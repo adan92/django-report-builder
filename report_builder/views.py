@@ -308,11 +308,16 @@ class ExportToReport(DownloadFileView, TemplateView):
 def check_status(request, pk, task_id):
     """ Check if the asyncronous report is ready to download """
     from celery.result import AsyncResult
+    from pusher import Pusher
     res = AsyncResult(task_id)
     link = ''
     if res.state == 'SUCCESS':
         report = get_object_or_404(Report, pk=pk)
         link = report.report_file.url
+        pusher = Pusher(app_id=settings.PUSHER_APP_ID,
+                        key=settings.PUSHER_KEY,
+                        secret=settings.PUSHER_SECRET)
+        pusher.trigger('solicitudes', 'create', {'state': res.state, 'link': link})
     return HttpResponse(
         json.dumps({
             'state': res.state,
