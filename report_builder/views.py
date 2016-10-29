@@ -214,7 +214,7 @@ class DownloadFileView(DataExportMixin, View):
             report.report_file.save(title, ContentFile(xlsx_file.getvalue()))
         report.report_file_creation = datetime.datetime.today()
         report.save()
-        link = report.report_file.url 
+        link = report.report_file.url
         pusher = Pusher(app_id=settings.PUSHER_APP_ID,
                         key=settings.PUSHER_KEY,
                         secret=settings.PUSHER_SECRET)
