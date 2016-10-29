@@ -21,6 +21,7 @@ from rest_framework.views import APIView
 from six import string_types
 from .utils import duplicate
 from .models import Report
+from pusher import Pusher
 from .mixins import DataExportMixin, generate_filename
 
 User = get_user_model()
@@ -141,6 +142,7 @@ class DownloadFileViewAPI(DataExportMixin, APIView):
             report.report_file.save(title, ContentFile(xlsx_file.getvalue()))
         report.report_file_creation = datetime.datetime.today()
         report.save()
+
         if getattr(settings, 'REPORT_BUILDER_EMAIL_NOTIFICATION', False):
             if user.email:
                 email_report(report.report_file.url, user)
@@ -192,6 +194,7 @@ class DownloadFileView(DataExportMixin, View):
                 return self.list_to_csv_response(
                     objects_list, title, header, widths)
             else:
+                print("ssssssssssssss2")
                 return self.list_to_xlsx_response(
                     objects_list, title, header, widths)
         else:
@@ -200,6 +203,7 @@ class DownloadFileView(DataExportMixin, View):
 
     def async_report_save(self, report, objects_list,
                           title, header, widths, user, file_type):
+        print("ssssssssssssss")
         if file_type == 'csv':
             csv_file = self.list_to_csv_file(objects_list, title,
                                              header, widths)
@@ -212,6 +216,13 @@ class DownloadFileView(DataExportMixin, View):
             report.report_file.save(title, ContentFile(xlsx_file.getvalue()))
         report.report_file_creation = datetime.datetime.today()
         report.save()
+        link = report.report_file.url
+        print("ssssssssssssss")
+        print(link)
+        pusher = Pusher(app_id=settings.PUSHER_APP_ID,
+                        key=settings.PUSHER_KEY,
+                        secret=settings.PUSHER_SECRET)
+        pusher.trigger('reports', 'success_create', {'name': report.name, 'link': link})
         if getattr(settings, 'REPORT_BUILDER_EMAIL_NOTIFICATION', False):
             if user.email:
                 email_report(report.report_file.url, user)
@@ -308,11 +319,16 @@ class ExportToReport(DownloadFileView, TemplateView):
 def check_status(request, pk, task_id):
     """ Check if the asyncronous report is ready to download """
     from celery.result import AsyncResult
+    from pusher import Pusher
     res = AsyncResult(task_id)
     link = ''
     if res.state == 'SUCCESS':
         report = get_object_or_404(Report, pk=pk)
         link = report.report_file.url
+        pusher = Pusher(app_id=settings.PUSHER_APP_ID,
+                        key=settings.PUSHER_KEY,
+                        secret=settings.PUSHER_SECRET)
+        pusher.trigger('reports', 'success_create', {'state': res.state, 'link': link})
     return HttpResponse(
         json.dumps({
             'state': res.state,
