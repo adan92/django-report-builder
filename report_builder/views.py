@@ -194,6 +194,7 @@ class DownloadFileView(DataExportMixin, View):
                 return self.list_to_csv_response(
                     objects_list, title, header, widths)
             else:
+                print("ssssssssssssss2")
                 return self.list_to_xlsx_response(
                     objects_list, title, header, widths)
         else:
@@ -202,6 +203,7 @@ class DownloadFileView(DataExportMixin, View):
 
     def async_report_save(self, report, objects_list,
                           title, header, widths, user, file_type):
+        print("ssssssssssssss")
         if file_type == 'csv':
             csv_file = self.list_to_csv_file(objects_list, title,
                                              header, widths)
@@ -215,6 +217,8 @@ class DownloadFileView(DataExportMixin, View):
         report.report_file_creation = datetime.datetime.today()
         report.save()
         link = report.report_file.url
+        print("ssssssssssssss")
+        print(link)
         pusher = Pusher(app_id=settings.PUSHER_APP_ID,
                         key=settings.PUSHER_KEY,
                         secret=settings.PUSHER_SECRET)
