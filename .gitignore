@@ -29,3 +29,5 @@ pip-log.txt
 .ropeproject
 report_files
 media
+
+.idea
