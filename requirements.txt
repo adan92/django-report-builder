@@ -6,5 +6,5 @@ ipdb
 celery[redis]
 flake8
 django-money==0.9.1
-djangorestframework==3.4.3
+djangorestframework==3.3.3
 pusher==1.6

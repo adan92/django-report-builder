@@ -416,6 +416,9 @@ class Report(models.Model):
                 display_field.position = i + 1
                 display_field.save()
 
+    def __str__(self):
+        return self.name
+
 
 class Format(models.Model):
     """ A specifies a Python string format for e.g. `DisplayField`s.

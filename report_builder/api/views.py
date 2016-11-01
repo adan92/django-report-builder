@@ -1,14 +1,17 @@
 from django.contrib.contenttypes.models import ContentType
+from django.db.transaction import atomic
 from django.shortcuts import get_object_or_404
 from django.utils.functional import cached_property
 from django.conf import settings
+from rest_framework import generics
+from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
 from .serializers import (
     ReportNestedSerializer, ReportSerializer, FormatSerializer,
-    FilterFieldSerializer, ContentTypeSerializer)
+    FilterFieldSerializer, ContentTypeSerializer, CloneSerializer)
 from report_builder.models import Report, Format, FilterField
 from report_builder.mixins import GetFieldsMixin, DataExportMixin
 import copy
@@ -263,3 +266,17 @@ class GenerateReport(DataExportMixin, APIView):
         }
 
         return Response(response)
+
+class CloneReport (generics.CreateAPIView):
+    """
+    Copy a report including related fields and set a name
+    """
+    serializer_class = CloneSerializer
+
+    @atomic
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)

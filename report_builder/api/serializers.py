@@ -1,9 +1,16 @@
+import copy
+
 from django.db import transaction
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
+from django.db.transaction import atomic
+from django.shortcuts import get_object_or_404
+
 from report_builder.models import Report, DisplayField, FilterField, Format
 from rest_framework import serializers
 import datetime
+
+from report_builder.utils import duplicate
 
 User = get_user_model()
 
@@ -106,3 +113,33 @@ class ReportNestedSerializer(ReportSerializer):
                     setattr(filter_field, key, value)
                 filter_field.save()
         return instance
+
+class CloneSerializer(serializers.ModelSerializer):
+
+    id= serializers.PrimaryKeyRelatedField(queryset= Report.objects.all())
+    name = serializers.CharField(max_length=255)
+    @atomic()
+    def create(self, validated_data):
+        report =validated_data.pop('id')
+        nombre=validated_data.pop('name')
+        usuario = self.context['request'].user
+        new_report = duplicate(report, changes=(
+            ('name',nombre),
+            ('user_created', usuario),
+            ('user_modified', usuario),
+        ))
+        # duplicate does not get related
+        for display in report.displayfield_set.all():
+            new_display = copy.copy(display)
+            new_display.pk = None
+            new_display.report = new_report
+            new_display.save()
+        for report_filter in report.filterfield_set.all():
+            new_filter = copy.copy(report_filter)
+            new_filter.pk = None
+            new_filter.report = new_report
+            new_filter.save()
+        return report
+    class Meta:
+        model = Report
+        fields =  ('id','name')
