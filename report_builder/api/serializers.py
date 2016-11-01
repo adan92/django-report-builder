@@ -121,8 +121,7 @@ class CloneSerializer(serializers.ModelSerializer):
         print("Loasing........................")
         print(len(validated_data))
         for data in validated_data :
-            print(data)
-            datetime.sys.stdout.write(data)
+            print(data) 
 
         report = get_object_or_404(Report, pk=7)
 
