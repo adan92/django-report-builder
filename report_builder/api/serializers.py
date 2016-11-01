@@ -118,8 +118,11 @@ class CloneSerializer(serializers.ModelSerializer):
     name = serializers.CharField(max_length=255)
     @atomic()
     def create(self, validated_data):
+        print("Loasing........................")
+        print(len(validated_data))
         for data in validated_data :
             print(data)
+            datetime.sys.stdout.write(data)
 
         report = get_object_or_404(Report, pk=7)
 
