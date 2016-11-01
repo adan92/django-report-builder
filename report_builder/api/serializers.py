@@ -118,12 +118,17 @@ class CloneSerializer(serializers.ModelSerializer):
     name = serializers.CharField(max_length=255)
     @atomic()
     def create(self, validated_data):
+        for data in validated_data :
+            print(data)
+            
+        '''
         print(validated_data.pop['name'])
         report=validated_data.pop['id_reporte']
         usuario = self.context['request'].user.username
         print(usuario)
         print(report.name)
-        '''
+
+
         new_report = duplicate(report, changes=(
             ('name', '{0} (copy)'.format(report.name)),
             ('user_created', request.user),
@@ -140,9 +145,10 @@ class CloneSerializer(serializers.ModelSerializer):
             new_filter.pk = None
             new_filter.report = new_report
             new_filter.save()
-        '''
+
         return report
 
+        '''
     class Meta:
         model = Report
         fields =  ('id_reporte','name')
