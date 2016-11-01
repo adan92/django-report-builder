@@ -118,8 +118,8 @@ class CloneSerializer(serializers.ModelSerializer):
     name = serializers.CharField(max_length=255)
     @atomic()
     def create(self, validated_data):
-        print(validated_data['name'])
-        report=validated_data['id_reporte']
+        print(validated_data.pop['name'])
+        report=validated_data.pop['id_reporte']
         usuario = self.context['request'].user.username
         print(usuario)
         print(report.name)
