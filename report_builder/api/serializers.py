@@ -122,7 +122,7 @@ class CloneSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         report =validated_data.pop('id')
         nombre=validated_data.pop('name')
-        usuario = self.context['request'].user.username
+        usuario = self.context['request'].user
         new_report = duplicate(report, changes=(
             ('name',nombre),
             ('user_created', usuario),
