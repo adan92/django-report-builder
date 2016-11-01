@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
 from .serializers import (
     ReportNestedSerializer, ReportSerializer, FormatSerializer,
-    FilterFieldSerializer, ContentTypeSerializer)
+    FilterFieldSerializer, ContentTypeSerializer, CloneSerializer)
 from report_builder.models import Report, Format, FilterField
 from report_builder.mixins import GetFieldsMixin, DataExportMixin
 import copy
@@ -269,7 +269,7 @@ class GenerateReport(DataExportMixin, APIView):
 
 class CloneReport (generics.CreateAPIView):
 
-    serializer_class = ReportNestedSerializer
+    serializer_class = CloneSerializer
 
     @atomic
     def create(self, request, *args, **kwargs):
