@@ -119,8 +119,8 @@ class CloneSerializer(serializers.ModelSerializer):
     @atomic()
     def create(self, validated_data):
         print("Loasing........................")
-        print(validated_data.pop['name'])
-        print(validated_data.pop['id'])
+        print(validated_data.pop('name'))
+        print(validated_data.pop('id'))
 
         report = get_object_or_404(Report, pk=7)
 
