@@ -140,4 +140,4 @@ class CloneSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Report
-        fields =  ('new_name',)
+        fields =  ('id_reporte','new_name')
