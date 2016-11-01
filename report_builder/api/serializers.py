@@ -111,7 +111,8 @@ class ReportNestedSerializer(ReportSerializer):
         return instance
 
 class CloneSerializer(serializers.Serializer):
-    id_reporte=serializers.IntegerField(read_only=True)
+    #id_reporte=serializers.IntegerField(read_only=True)
+    id_reporte= serializers.PrimaryKeyRelatedField(queryset=Report.allowed_models())
     @atomic()
     def create(self, validated_data):
         print(validated_data['id_reporte'])
@@ -138,4 +139,4 @@ class CloneSerializer(serializers.Serializer):
 
     class Meta:
         model = Report
-        fields = '__all__'
+        fields =  ('id', 'name')
