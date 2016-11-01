@@ -8,6 +8,8 @@ from report_builder.models import Report, DisplayField, FilterField, Format
 from rest_framework import serializers
 import datetime
 
+from report_builder.utils import duplicate
+
 User = get_user_model()
 
 
@@ -116,9 +118,11 @@ class CloneSerializer(serializers.ModelSerializer):
     name = serializers.CharField(max_length=255)
     @atomic()
     def create(self, validated_data):
-        print(validated_data['id_reporte'])
         print(validated_data['name'])
-        report = get_object_or_404(Report, pk=validated_data['id_reporte'])
+        report=validated_data['id_reporte']
+        usuario = self.context['request'].user.username
+        print(usuario)
+        print(report.name)
         '''
         new_report = duplicate(report, changes=(
             ('name', '{0} (copy)'.format(report.name)),
