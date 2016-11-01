@@ -120,7 +120,9 @@ class CloneSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         for data in validated_data :
             print(data)
-            
+
+        report = get_object_or_404(Report, pk=7)
+
         '''
         print(validated_data.pop['name'])
         report=validated_data.pop['id_reporte']
@@ -149,6 +151,7 @@ class CloneSerializer(serializers.ModelSerializer):
         return report
 
         '''
+        return report
     class Meta:
         model = Report
         fields =  ('id_reporte','name')
