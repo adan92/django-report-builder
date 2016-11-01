@@ -114,7 +114,6 @@ class CloneSerializer(serializers.ModelSerializer):
     #id_reporte=serializers.IntegerField(read_only=True)
     id_reporte= serializers.PrimaryKeyRelatedField(queryset=Report.allowed_models())
     new_name=serializers.CharField(max_length=255,read_only=True)
-    id_reporte_name = serializers.StringRelatedField(source='id_reporte')
     @atomic()
     def create(self, validated_data):
         print(validated_data['id_reporte'])
@@ -141,4 +140,4 @@ class CloneSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Report
-        fields =  '__all__'
+        fields =  ('new_name')
