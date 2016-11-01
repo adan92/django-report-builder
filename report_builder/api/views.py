@@ -268,7 +268,9 @@ class GenerateReport(DataExportMixin, APIView):
         return Response(response)
 
 class CloneReport (generics.CreateAPIView):
-
+    """
+    Copy a report including related fields and set a name
+    """
     serializer_class = CloneSerializer
 
     @atomic

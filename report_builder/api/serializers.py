@@ -115,7 +115,7 @@ class ReportNestedSerializer(ReportSerializer):
         return instance
 
 class CloneSerializer(serializers.ModelSerializer):
-    #id_reporte=serializers.IntegerField(read_only=True)
+
     id= serializers.PrimaryKeyRelatedField(queryset= Report.objects.all())
     name = serializers.CharField(max_length=255)
     @atomic()
@@ -123,7 +123,6 @@ class CloneSerializer(serializers.ModelSerializer):
         report =validated_data.pop('id')
         nombre=validated_data.pop('name')
         usuario = self.context['request'].user.username
-        '''
         new_report = duplicate(report, changes=(
             ('name',nombre),
             ('user_created', usuario),
@@ -140,7 +139,6 @@ class CloneSerializer(serializers.ModelSerializer):
             new_filter.pk = None
             new_filter.report = new_report
             new_filter.save()
-        '''
         return report
     class Meta:
         model = Report
