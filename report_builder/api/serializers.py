@@ -1,3 +1,5 @@
+import copy
+
 from django.db import transaction
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
@@ -119,23 +121,18 @@ class CloneSerializer(serializers.ModelSerializer):
     @atomic()
     def create(self, validated_data):
         print("Loasing........................")
-        print(validated_data.pop('name'))
-        print(validated_data.pop('id'))
 
-        report = get_object_or_404(Report, pk=7)
-
-        '''
-        print(validated_data.pop['name'])
-        report=validated_data.pop['id_reporte']
+        report =validated_data.pop('id')
+        nombre=validated_data.pop('name')
         usuario = self.context['request'].user.username
         print(usuario)
         print(report.name)
-
-
+        print(nombre)
+        '''
         new_report = duplicate(report, changes=(
             ('name', '{0} (copy)'.format(report.name)),
-            ('user_created', request.user),
-            ('user_modified', request.user),
+            ('user_created', usuario),
+            ('user_modified', usuario),
         ))
         # duplicate does not get related
         for display in report.displayfield_set.all():
@@ -148,10 +145,8 @@ class CloneSerializer(serializers.ModelSerializer):
             new_filter.pk = None
             new_filter.report = new_report
             new_filter.save()
-
-        return report
-
         '''
+
         return report
     class Meta:
         model = Report
