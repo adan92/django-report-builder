@@ -283,7 +283,7 @@ class CloneReport (generics.CreateAPIView):
 
 class ReportDownloadedView(generics.ListAPIView):
     """
-    Regresa todas las etapas de un servicio a partir de un diagnóstico
+    Regresa todos los reportes que tienen un reporte generado
     """
     serializer_class = ReportSerializer
 

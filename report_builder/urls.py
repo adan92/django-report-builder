@@ -33,7 +33,7 @@ urlpatterns = [
 
     url('^report/(?P<pk>\d+)/$', views.ReportSPAView.as_view(), name="report_update_view"),
     url('^report/clone_report/$', CloneReport.as_view(), name="clone_report"),
-    url('^api/report/downloaded/$', ReportDownloadedView.as_view(), name="clone_report"),
+    url('^reports/download/$', ReportDownloadedView.as_view(), name="downloaded"),
 ]
 
 if not hasattr(settings, 'REPORT_BUILDER_FRONTEND') or settings.REPORT_BUILDER_FRONTEND:
