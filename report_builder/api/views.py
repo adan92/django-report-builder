@@ -285,7 +285,7 @@ class ReportDownloadedView(generics.ListAPIView):
     """
     Regresa todos los reportes que tienen un reporte generado
     """
-    serializer_class = ReportSerializer
+    serializer_class = ReportNestedSerializer
 
     def get_queryset(self):
         return Report.objects.exclude(report_file__isnull=True)
