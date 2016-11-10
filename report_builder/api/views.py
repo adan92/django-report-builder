@@ -288,4 +288,4 @@ class ReportDownloadedView(generics.ListAPIView):
     serializer_class = ReportNestedSerializer
 
     def get_queryset(self):
-        return Report.objects.exclude(report_file__isnull=True)
+        return Report.objects.exclude(report_file=None).exclude(report_file='')
