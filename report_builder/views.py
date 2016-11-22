@@ -22,6 +22,13 @@ from .models import Report
 from pusher import Pusher
 from .mixins import DataExportMixin, generate_filename
 
+from django.conf import settings
+import sys
+import logging
+root = logging.getLogger()
+root.setLevel(logging.DEBUG)
+ch = logging.StreamHandler(sys.stdout)
+root.addHandler(ch)
 User = get_user_model()
 
 
