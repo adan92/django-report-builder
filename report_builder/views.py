@@ -22,13 +22,6 @@ from .models import Report
 from pusher import Pusher
 from .mixins import DataExportMixin, generate_filename
 
-from django.conf import settings
-import sys
-import logging
-root = logging.getLogger()
-root.setLevel(logging.DEBUG)
-ch = logging.StreamHandler(sys.stdout)
-root.addHandler(ch)
 User = get_user_model()
 
 
@@ -220,9 +213,11 @@ class DownloadFileView(DataExportMixin, View):
         report.report_file_creation = datetime.datetime.today()
         report.save()
         link = report.report_file.url
-        from management import PushServer
-        push_client = PushServer()
-        push_client.getPusher().trigger('presence-3', 'success_create', {'name': report.name, 'link': link})
+        pusher = Pusher(app_id=settings.PUSHER_APP_ID,
+                        key=settings.PUSHER_KEY,
+                        secret=settings.PUSHER_SECRET)
+
+        pusher.trigger('presence-3', 'success_create', {'name': report.name, 'link': link})
         if getattr(settings, 'REPORT_BUILDER_EMAIL_NOTIFICATION', False):
             if user.email:
                 email_report(report.report_file.url, user)
