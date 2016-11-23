@@ -215,7 +215,7 @@ class DownloadFileView(DataExportMixin, View):
         link = report.report_file.url
         from management import PushServer
         push_client = PushServer()
-        persona = self.request.user.persona.id
+        persona = user.persona.id
         push_client.getPusher().trigger('presence-' + str(persona),'success_create', {'name': report.name, 'link': link})
         if getattr(settings, 'REPORT_BUILDER_EMAIL_NOTIFICATION', False):
             if user.email:
