@@ -213,11 +213,9 @@ class DownloadFileView(DataExportMixin, View):
         report.report_file_creation = datetime.datetime.today()
         report.save()
         link = report.report_file.url
-        pusher = Pusher(app_id=settings.PUSHER_APP_ID,
-                        key=settings.PUSHER_KEY,
-                        secret=settings.PUSHER_SECRET)
-
-        pusher.trigger('presence-3', 'success_create', {'name': report.name, 'link': link})
+        from management import PushServer
+        push_client = PushServer()
+        push_client.getPusher().trigger('presence-3', 'success_create', {'name': report.name, 'link': link})
         if getattr(settings, 'REPORT_BUILDER_EMAIL_NOTIFICATION', False):
             if user.email:
                 email_report(report.report_file.url, user)
@@ -320,10 +318,9 @@ def check_status(request, pk, task_id):
     if res.state == 'SUCCESS':
         report = get_object_or_404(Report, pk=pk)
         link = report.report_file.url
-        pusher = Pusher(app_id=settings.PUSHER_APP_ID,
-                        key=settings.PUSHER_KEY,
-                        secret=settings.PUSHER_SECRET)
-        pusher.trigger('reports', 'success_create', {'state': res.state, 'link': link})
+        from management import PushServer
+        push_client = PushServer()
+        push_client.getPusher().trigger('presence-3', 'success_create', {'state': res.state, 'link': link})
     return HttpResponse(
         json.dumps({
             'state': res.state,
