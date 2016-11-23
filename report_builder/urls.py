@@ -2,7 +2,7 @@ from django.conf.urls import url, include
 from django.contrib.admin.views.decorators import staff_member_required
 from rest_framework import routers
 
-from report_builder.api.views import CloneReport
+from report_builder.api.views import CloneReport, ReportDownloadedView
 from . import views
 from .api import views as api_views
 from django.conf import settings
@@ -33,6 +33,7 @@ urlpatterns = [
 
     url('^report/(?P<pk>\d+)/$', views.ReportSPAView.as_view(), name="report_update_view"),
     url('^report/clone_report/$', CloneReport.as_view(), name="clone_report"),
+    url('^reports/download/$', ReportDownloadedView.as_view(), name="downloaded"),
 ]
 
 if not hasattr(settings, 'REPORT_BUILDER_FRONTEND') or settings.REPORT_BUILDER_FRONTEND:

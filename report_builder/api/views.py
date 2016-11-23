@@ -280,3 +280,12 @@ class CloneReport (generics.CreateAPIView):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+class ReportDownloadedView(generics.ListAPIView):
+    """
+    Regresa todos los reportes que tienen un reporte generado
+    """
+    serializer_class = ReportNestedSerializer
+
+    def get_queryset(self):
+        return Report.objects.exclude(report_file=None).exclude(report_file='')
