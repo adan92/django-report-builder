@@ -5,6 +5,6 @@ from .views import DownloadFileView
 
 
 @shared_task
-def report_builder_file_async_report_save(report_id, user_id, file_type):
+def report_builder_file_async_report_save(request,report_id, user_id, file_type):
     view = DownloadFileView()
-    view.process_report(report_id, user_id, file_type, to_response=False)
+    view.process_report(request,report_id, user_id, file_type, to_response=False)

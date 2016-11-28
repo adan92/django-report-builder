@@ -150,7 +150,7 @@ class DownloadFileViewAPI(DataExportMixin, APIView):
         file_type = kwargs.get('filetype')
         if getattr(settings, 'REPORT_BUILDER_ASYNC_REPORT', False):
             from .tasks import report_builder_file_async_report_save
-            report_task = report_builder_file_async_report_save.delay(
+            report_task = report_builder_file_async_report_save.delay(request,
                 report_id, request.user.pk, file_type)
             task_id = report_task.task_id
             return HttpResponse(
@@ -236,7 +236,7 @@ class DownloadFileView(DataExportMixin, View):
         file_type = kwargs.get('filetype')
         if getattr(settings, 'REPORT_BUILDER_ASYNC_REPORT', False):
             from .tasks import report_builder_file_async_report_save
-            report_task = report_builder_file_async_report_save.delay(
+            report_task = report_builder_file_async_report_save.delay(request,
                 report_id, request.user.pk, file_type)
             task_id = report_task.task_id
             return HttpResponse(
