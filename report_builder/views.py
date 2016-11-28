@@ -216,7 +216,7 @@ class DownloadFileView(DataExportMixin, View):
         from management import PushServer
         push_client = PushServer()
         persona = user.persona.id
-        push_client.getPusher().trigger('presence-' + str(persona),'success_create', {'name': report.name, 'link': link})
+        push_client.getPusher().trigger('presence-' + str(persona),'success_create', {'name': report.name, 'link': link,'id':report.id})
         if getattr(settings, 'REPORT_BUILDER_EMAIL_NOTIFICATION', False):
             if user.email:
                 email_report(report.report_file.url, user)
@@ -322,7 +322,8 @@ def check_status(request, pk, task_id):
         from management import PushServer
         push_client = PushServer()
         persona = request.user.persona.id
-        push_client.getPusher().trigger('presence-' + str(persona), 'success_create', {'state': res.state, 'link': link})
+        push_client.getPusher().trigger('presence-' + str(persona), 'success_create', {'state': res.state, 'link': link,'id':report.id})
+
     return HttpResponse(
         json.dumps({
             'state': res.state,
