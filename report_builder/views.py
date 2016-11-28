@@ -150,7 +150,7 @@ class DownloadFileViewAPI(DataExportMixin, APIView):
         file_type = kwargs.get('filetype')
         if getattr(settings, 'REPORT_BUILDER_ASYNC_REPORT', False):
             from .tasks import report_builder_file_async_report_save
-            report_task = report_builder_file_async_report_save.delay(request,
+            report_task = report_builder_file_async_report_save.delay(request.auth.token,
                 report_id, request.user.pk, file_type)
             task_id = report_task.task_id
             return HttpResponse(
@@ -226,7 +226,7 @@ class DownloadFileView(DataExportMixin, View):
         }
         print(request.auth.token)
 
-        response = create_notification(request.auth.token, request_data)
+        response = create_notification(request, request_data)
         if response.status_code == requests.codes.ok:
             push_client.getPusher().trigger('presence-' + str(persona),'success_create', {'name': report.name, 'link': link,'id':report.id})
         if getattr(settings, 'REPORT_BUILDER_EMAIL_NOTIFICATION', False):
@@ -238,7 +238,7 @@ class DownloadFileView(DataExportMixin, View):
         file_type = kwargs.get('filetype')
         if getattr(settings, 'REPORT_BUILDER_ASYNC_REPORT', False):
             from .tasks import report_builder_file_async_report_save
-            report_task = report_builder_file_async_report_save.delay(request,
+            report_task = report_builder_file_async_report_save.delay(request.auth.token,
                 report_id, request.user.pk, file_type)
             task_id = report_task.task_id
             return HttpResponse(
