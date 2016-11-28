@@ -323,6 +323,7 @@ def check_status(request, pk, task_id):
         push_client = PushServer()
         persona = request.user.persona.id
         push_client.getPusher().trigger('presence-' + str(persona), 'success_create', {'state': res.state, 'link': link,'id':report.id})
+
     return HttpResponse(
         json.dumps({
             'state': res.state,
