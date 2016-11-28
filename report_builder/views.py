@@ -224,6 +224,8 @@ class DownloadFileView(DataExportMixin, View):
             'username': user.username,
             'type': 'Reporte'
         }
+        print(request.auth.token)
+
         response = create_notification(request.auth.token, request_data)
         if response.status_code == requests.codes.ok:
             push_client.getPusher().trigger('presence-' + str(persona),'success_create', {'name': report.name, 'link': link,'id':report.id})
