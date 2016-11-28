@@ -158,7 +158,7 @@ class DownloadFileViewAPI(DataExportMixin, APIView):
                 content_type="application/json")
         else:
             return self.process_report(
-                request,report_id, request.user.pk, file_type, to_response=True)
+               report_id, request.user.pk, file_type, to_response=True)
 
 
 class DownloadFileView(DataExportMixin, View):
@@ -244,7 +244,7 @@ class DownloadFileView(DataExportMixin, View):
                 content_type="application/json")
         else:
             return self.process_report(
-                report_id, request.user.pk, file_type, to_response=True)
+                request,report_id, request.user.pk, file_type, to_response=True)
 
 
 def ajax_add_star(request, pk):
