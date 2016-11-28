@@ -334,6 +334,7 @@ def check_status(request, pk, task_id):
         from management.utils import create_notification
         import requests
         push_client = PushServer()
+        '''
         request = {
             'message': 'Se creo el reporte ' + report.name,
             'idObject': str(report.id),
@@ -343,7 +344,9 @@ def check_status(request, pk, task_id):
         persona = request.user.persona.id
         response = create_notification(request.auth.token, request)
         if response.status_code == requests.codes.ok:
-            push_client.getPusher().trigger('presence-' + str(persona), 'success_create', {'state': res.state, 'link': link,'id':report.id})
+        '''
+        persona = request.user.persona.id
+        push_client.getPusher().trigger('presence-' + str(persona), 'success_create', {'state': res.state, 'link': link,'id':report.id})
 
     return HttpResponse(
         json.dumps({
