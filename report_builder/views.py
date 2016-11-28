@@ -158,7 +158,7 @@ class DownloadFileViewAPI(DataExportMixin, APIView):
                 content_type="application/json")
         else:
             return self.process_report(
-                report_id, request.user.pk, file_type, to_response=True)
+                request,report_id, request.user.pk, file_type, to_response=True)
 
 
 class DownloadFileView(DataExportMixin, View):
@@ -166,7 +166,7 @@ class DownloadFileView(DataExportMixin, View):
     def dispatch(self, *args, **kwargs):
         return super(DownloadFileView, self).dispatch(*args, **kwargs)
 
-    def process_report(self, report_id, user_id,
+    def process_report(self,request, report_id, user_id,
                        file_type, to_response, queryset=None):
         report = get_object_or_404(Report, pk=report_id)
         user = User.objects.get(pk=user_id)
@@ -196,10 +196,10 @@ class DownloadFileView(DataExportMixin, View):
                     objects_list, title, header, widths)
         else:
             self.async_report_save(report, objects_list,
-                                   title, header, widths, user, file_type)
+                                   title, header, widths, user, file_type,request)
 
     def async_report_save(self, report, objects_list,
-                          title, header, widths, user, file_type):
+                          title, header, widths, user, file_type,request):
         if file_type == 'csv':
             csv_file = self.list_to_csv_file(objects_list, title,
                                              header, widths)
@@ -214,9 +214,19 @@ class DownloadFileView(DataExportMixin, View):
         report.save()
         link = report.report_file.url
         from management import PushServer
+        from management.utils import create_notification
+        import requests
         push_client = PushServer()
         persona = user.persona.id
-        push_client.getPusher().trigger('presence-' + str(persona),'success_create', {'name': report.name, 'link': link,'id':report.id})
+        request_data = {
+            'message': 'Se creo el reporte ' + report.name,
+            'idObject': str(report.id),
+            'username': user.username,
+            'type': 'Reporte'
+        }
+        response = create_notification(request.auth.token, request_data)
+        if response.status_code == requests.codes.ok:
+            push_client.getPusher().trigger('presence-' + str(persona),'success_create', {'name': report.name, 'link': link,'id':report.id})
         if getattr(settings, 'REPORT_BUILDER_EMAIL_NOTIFICATION', False):
             if user.email:
                 email_report(report.report_file.url, user)
@@ -320,9 +330,19 @@ def check_status(request, pk, task_id):
         report = get_object_or_404(Report, pk=pk)
         link = report.report_file.url
         from management import PushServer
+        from management.utils import create_notification
+        import requests
         push_client = PushServer()
+        request = {
+            'message': 'Se creo el reporte ' + report.name,
+            'idObject': str(report.id),
+            'username': request.user.username,
+            'type': 'Reporte'
+        }
         persona = request.user.persona.id
-        push_client.getPusher().trigger('presence-' + str(persona), 'success_create', {'state': res.state, 'link': link,'id':report.id})
+        response = create_notification(request.auth.token, request)
+        if response.status_code == requests.codes.ok:
+            push_client.getPusher().trigger('presence-' + str(persona), 'success_create', {'state': res.state, 'link': link,'id':report.id})
 
     return HttpResponse(
         json.dumps({
