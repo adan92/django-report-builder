@@ -224,7 +224,6 @@ class DownloadFileView(DataExportMixin, View):
             'username': user.username,
             'type': 'Reporte'
         }
-        print(request.auth.token)
 
         response = create_notification(request, request_data)
         if response.status_code == requests.codes.ok:
