@@ -212,7 +212,9 @@ class DownloadFileView(DataExportMixin, View):
             report.report_file.save(title, ContentFile(xlsx_file.getvalue()))
         report.report_file_creation = datetime.datetime.today()
         report.save()
+        """
         link = report.report_file.url
+         
         from management import PushServer
         from management.utils import create_notification
         import requests
@@ -224,10 +226,11 @@ class DownloadFileView(DataExportMixin, View):
             'username': user.username,
             'type': 'Reporte'
         }
-
+        
         response = create_notification(request, request_data)
         if response.status_code == requests.codes.ok:
             push_client.getPusher().trigger('presence-' + str(persona),'success_create', {'name': report.name, 'link': link,'id':report.id})
+        """
         if getattr(settings, 'REPORT_BUILDER_EMAIL_NOTIFICATION', False):
             if user.email:
                 email_report(report.report_file.url, user)
@@ -333,7 +336,7 @@ def check_status(request, pk, task_id):
         from management import PushServer
         from management.utils import create_notification
         import requests
-        push_client = PushServer()
+        #push_client = PushServer()
         '''
         request = {
             'message': 'Se creo el reporte ' + report.name,
@@ -345,8 +348,8 @@ def check_status(request, pk, task_id):
         response = create_notification(request.auth.token, request)
         if response.status_code == requests.codes.ok:
         '''
-        persona = request.user.persona.id
-        push_client.getPusher().trigger('presence-' + str(persona), 'success_create', {'state': res.state, 'link': link,'id':report.id})
+        #persona = request.user.persona.id
+        #push_client.getPusher().trigger('presence-' + str(persona), 'success_create', {'state': res.state, 'link': link,'id':report.id})
 
     return HttpResponse(
         json.dumps({
